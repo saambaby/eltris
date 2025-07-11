@@ -1,0 +1,16 @@
+[package]
+name = "eltris-api"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "REST API server for Eltris"
+
+[dependencies]
+eltris-core = { path = "../eltris-core" }
+eltris-arbitrage = { path = "../eltris-arbitrage" }
+tokio = { workspace = true }
+axum = { workspace = true }
+tower = { workspace = true }
+serde = { workspace = true } 

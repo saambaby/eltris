@@ -1,0 +1,14 @@
+[package]
+name = "eltris-exchange"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Exchange integration for Eltris"
+
+[dependencies]
+eltris-core = { path = "../eltris-core" }
+tokio = { workspace = true }
+serde = { workspace = true }
+reqwest = { workspace = true } 

@@ -1,0 +1,15 @@
+[package]
+name = "eltris-lightning"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Lightning Network integration for Eltris"
+
+[dependencies]
+eltris-core = { path = "../eltris-core" }
+tokio = { workspace = true }
+lightning = { workspace = true }
+lightning-net-tokio = { workspace = true }
+bitcoin = { workspace = true } 
