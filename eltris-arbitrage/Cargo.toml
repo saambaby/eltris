@@ -9,7 +9,6 @@ description = "Arbitrage engine for Eltris"
 
 [dependencies]
 eltris-core = { path = "../eltris-core" }
-eltris-exchange = { path = "../eltris-exchange" }
 eltris-lightning = { path = "../eltris-lightning" }
 tokio = { workspace = true }
 rust_decimal = { workspace = true } 
