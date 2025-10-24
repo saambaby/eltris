@@ -6,8 +6,8 @@
 //! - PostgreSQL for state management
 //! - Cryptographic verification for security
 
+pub mod engine;
 pub mod error;
-pub mod escrow_engine;
 pub mod models;
 pub mod node;
 pub mod nostr_publisher;

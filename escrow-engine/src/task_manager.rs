@@ -6,8 +6,8 @@
 
 use crate::EscrowResult;
 use crate::{
+    engine::EscrowEngine,
     error::EscrowError,
-    escrow_engine::EscrowEngine,
     models::{
         Dispute, EscrowEvent, Funding, FundingMode, FundingStatus, Reputation, Task, TaskState,
         User,

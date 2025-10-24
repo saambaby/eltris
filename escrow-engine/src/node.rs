@@ -6,8 +6,8 @@
 
 use crate::{
     EscrowResult,
+    engine::{EscrowEngine, EscrowEngineConfig, LiquidityInfo, NodeInfo},
     error::EscrowError,
-    escrow_engine::{EscrowEngine, EscrowEngineConfig},
     models::{Dispute, EscrowEvent, Funding, FundingMode, Reputation, Task, TaskState, User},
     nostr_publisher::{NostrPublisher, NostrPublisherConfig},
     payment_coordinator::{PaymentCoordinator, PaymentCoordinatorConfig},
@@ -143,19 +143,16 @@ impl EscrowNode {
         info!("Initializing escrow node with all components");
 
         // Initialize escrow engine (LDK)
-        let escrow_engine = Arc::new(EscrowEngine::new(config.escrow_config).await?);
-
-        // Initialize verification service
-        let verification_service = Arc::new(VerificationService::new(config.verification_config));
-
-        // Initialize Nostr publisher
-        let nostr_publisher = Arc::new(NostrPublisher::new(config.nostr_config).await?);
-
-        // Initialize reputation indexer
-        let reputation_indexer = Arc::new(ReputationIndexer::new(config.reputation_config));
-
-        // Initialize payment coordinator
-        let payment_coordinator = Arc::new(PaymentCoordinator::new(config.payment_config));
+        let escrow_engine: Arc<EscrowEngine> =
+            Arc::new(EscrowEngine::new(config.escrow_config).await?);
+        let verification_service: Arc<VerificationService> =
+            Arc::new(VerificationService::new(config.verification_config));
+        let nostr_publisher: Arc<NostrPublisher> =
+            Arc::new(NostrPublisher::new(config.nostr_config).await?);
+        let reputation_indexer: Arc<ReputationIndexer> =
+            Arc::new(ReputationIndexer::new(config.reputation_config));
+        let payment_coordinator: Arc<PaymentCoordinator> =
+            Arc::new(PaymentCoordinator::new(config.payment_config));
 
         // Initialize task manager
         let task_manager = Arc::new(
@@ -200,12 +197,26 @@ impl EscrowNode {
         &self,
         request: FundTaskRequest,
     ) -> EscrowResult<crate::models::HoldInvoiceData> {
-        self.task_manager.fund_task(request).await
+        let fund_request = crate::task_manager::FundTaskRequest {
+            task_id: request.task_id,
+            employer_pubkey: request.employer_pubkey,
+            mode: request.mode,
+        };
+
+        self.task_manager.fund_task(fund_request).await
     }
 
     /// Submit proof of work completion
     pub async fn submit_proof(&self, request: SubmitProofRequest) -> EscrowResult<Task> {
-        self.task_manager.submit_proof(request).await
+        let submit_proof_request = crate::task_manager::SubmitProofRequest {
+            task_id: request.task_id,
+            worker_pubkey: request.worker_pubkey,
+            proof_url: request.proof_url,
+            proof_hash: request.proof_hash,
+            nostr_event_id: request.nostr_event_id,
+            nostr_signature: request.nostr_signature,
+        };
+        self.task_manager.submit_proof(submit_proof_request).await
     }
 
     /// Verify task completion and approve for payment
@@ -252,8 +263,8 @@ impl EscrowNode {
         let tasks = self.task_manager.get_user_tasks(pubkey).await?;
 
         Ok(UserTasksResponse {
-            tasks,
             total_count: tasks.len(),
+            tasks,
         })
     }
 
@@ -283,12 +294,12 @@ impl EscrowNode {
     }
 
     /// Get node liquidity information
-    pub async fn get_liquidity_info(&self) -> EscrowResult<crate::escrow_engine::LiquidityInfo> {
+    pub async fn get_liquidity_info(&self) -> EscrowResult<LiquidityInfo> {
         self.escrow_engine.get_liquidity_info().await
     }
 
     /// Get node information
-    pub async fn get_node_info(&self) -> EscrowResult<crate::escrow_engine::NodeInfo> {
+    pub async fn get_node_info(&self) -> EscrowResult<NodeInfo> {
         self.escrow_engine.get_node_info().await
     }
 
